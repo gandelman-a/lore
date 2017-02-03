@@ -2,65 +2,15 @@
 
 ## Table of Contents
 
-* [Development Environment](#development-environment)
-  * [Virtual Machines](#virtual-machines)
 * [Contributing](#contributing)
-* [IRC](#irc)
-
-## Development Environment
-
-Before hacking on BonnyCI, we'll need to set up a development environment on our local machine.
-
-Supported development platforms:
-
-* [Ubuntu](dev-environment/ubuntu.md)
-* [Apple's macOS](dev-environment/macOS.md)
-
-### Virtual Machines
-
-You can test changes to BonnyCI locally by exercising some tools defined in [hoist](www.github.com/BonnyCI/hoist). Hoist is a set of ansible playbooks that automate the deployment of a BonnyCI environment. Be sure that you have completed the `Virtualization Tools` section of your OS's [Development Environment](#development-environment) page before proceeding.
-
-Clone hoist and navigate to its base directory:
-
-```shell
-$ git clone git@github.com:BonnyCI/hoist.git
-$ cd hoist
-```
-
-To perform a full deploy:
-
-```shell
-$ vagrant up
-```
-
-To redeploy just the nodepool VM:
-
-```shell
-$ vagrant destroy nodepool
-$ vagrant up nodepool
-```
-
-To inspect the zuul VM:
-
-```shell
-$ vagrant ssh zuul
-$ # netstat, tcpdump, tail logs, etc.
-$ logout
-```
-
-To test changes to the zuul role:
-
-```shell
-$ vagrant ssh bastion
-$ sudo -i -u cideploy
-$ /vagrant/tools/vagrant-run-ansible.sh --limit zuul
-```
-
-To tear down the entire stack when you're done:
-
-```shell
-$ vagrant destroy
-```
+* [Discussion](#discussion)
+* [Ansible Environments](#ansible-environments)
+  * [Production](#production)
+  * [Multinode Nodepool](#multinode-nodepool)
+  * [Docker](#docker)
+  * [Vagrant](#vagrant)
+* [Local Development Environment](#local-development-environment)
+  * [Local Testing](#local-testing)
 
 ## Contributing
 
@@ -71,6 +21,46 @@ A brief note on repository naming...
 >
 > ~Jesse Keating
 
-## IRC
+## Discussion
 
 For discussions about BonnyCI, join us on [freenode](https://freenode.net) #BonnyCi!
+
+## Ansible Environments
+
+The primary ansible playbook in hoist is `./install-ci.yml`, and the result can be validated with the `./tests/validate-ci.yml` playbook.  These playbooks need to support four different environments:
+
+* [Production](#production)
+* [Multinode Nodepool](#multinode-nodepool)
+* [Docker](#docker)
+* [Vagrant](#vagrant)
+
+### Production
+
+A live deployment of [hoist](www.github.com/BonnyCI/hoist) running a CI service, and uses the hoist inventory file `./inventory/ci`.
+
+### Multinode Nodepool
+
+Hoist is tested with a job running on multiple single-use nodepool nodes. The test job deploys hoist on the nodes and validates the result for every pull request. It uses the dynamic inventory script `./inventory/nodepool.py`, and closely resembles production.
+
+### Docker
+
+We have a TravisCI test that deploys hoist in a docker container and validates the result. This uses the `./inventory/allinone` inventory to deploy all components in a single container.
+
+### Vagrant
+
+The Vagrant environment closely resembles production and is only used for [local testing](#local-testing) using the `./inventory/vagrant` inventory.
+
+## Local Development Environment
+
+Before hacking on BonnyCI, we'll need to set up a development environment on our local machine.
+
+Supported development platforms:
+
+* [Ubuntu](dev-environment/ubuntu.md)
+* [Apple's macOS](dev-environment/macOS.md)
+
+### Local Testing
+
+You can test changes to BonnyCI locally by exercising some tools defined in [hoist](www.github.com/BonnyCI/hoist). Hoist is a set of ansible playbooks that automate the deployment of a BonnyCI environment. Be sure that you have completed the `Virtualization Tools` section of your OS's [Development Environment](#development-environment) page before proceeding.
+
+To use Vagrant for local testing, refer to [Testing with Vagrant](dev-environment/vagrant.md).
